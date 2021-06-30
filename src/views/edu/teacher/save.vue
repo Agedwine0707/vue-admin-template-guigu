@@ -76,8 +76,8 @@
 <script>
 // 引入组件
 import teacherAip from "@/api/edu/teacher";
-import ImageCropper from '@/components/ImageCropper'
-import PanThumb from '@/components/PanThumb'
+import ImageCropper from "@/components/ImageCropper";
+import PanThumb from "@/components/PanThumb";
 
 export default {
   // 声明组件
@@ -91,16 +91,19 @@ export default {
         career: "",
         intro: "",
         // 没有上传头像时默认
-        avatar: "https://mybucket-guli.oss-cn-shenzhen.aliyuncs.com/e27976887f6ae2d5a99114591517233f.jpeg",
+        avatar:
+          "https://mybucket-guli.oss-cn-shenzhen.aliyuncs.com/e27976887f6ae2d5a99114591517233f.jpeg",
       },
-      imagecropperKey:0,  // 上传的图片id
+      imagecropperKey: 0, // 上传的图片id
       BASE_API: process.env.BASE_API, // 接口API地址
-      imagecropperShow:false, // 是否显示上传组件
+      imagecropperShow: false, // 是否显示上传组件
       saveBtnDisabled: false, // 保存按钮是否禁用,
     };
   },
 
-  // 路由变化监听，变化后重新初始化
+  /**
+   * 路由变化监听，变化后重新初始化
+   */
   watch: {
     $route(to, from) {
       this.init();
@@ -114,18 +117,18 @@ export default {
 
   methods: {
     // 关闭头像上传组件
-    close(){
+    close() {
       // 关闭头像上传组件
-      this.imagecropperShow = false
+      this.imagecropperShow = false;
       // 关闭上传组件后，初始化上传组件
-      this.imagecropperKey = this.imagecropperKey + 1
+      this.imagecropperKey = this.imagecropperKey + 1;
     },
     // 上传头像成功的方法
-    cropSuccess(data){
-      this.imagecropperShow = false
+    cropSuccess(data) {
+      this.imagecropperShow = false;
       // 把返回的地址赋值给avatar字段(数据库存路径)
-      this.teacher.avatar = data.url
-      this.imagecropperKey = this.imagecropperKey + 1
+      this.teacher.avatar = data.url;
+      this.imagecropperKey = this.imagecropperKey + 1;
     },
     init() {
       // 判断路径中是否有id值
@@ -138,7 +141,10 @@ export default {
         this.teacher = {};
       }
     },
-    // 判断当前操作是修改还是添加(根据teacher是否有id),执行相应操作
+
+    /**
+     * 判断当前操作是修改还是添加(根据teacher是否有id),执行相应操作
+     */
     saveOrUpdate() {
       if (!this.teacher.id) {
         this.saveTeacher();
@@ -147,34 +153,37 @@ export default {
       }
     },
 
-    // 添加讲师
+    /**
+     * 添加讲师,成功后，返回讲师列表 路由跳转
+     */
     saveTeacher() {
       teacherAip.addTeacher(this.teacher).then((response) => {
-        // 添加成功
         this.$message({
           type: "success",
           message: "添加成功！",
         });
-        // 返回讲师列表 路由跳转
         this.$router.push({ path: "/teacher/table" });
       });
     },
 
-    // 根据id获取回显信息(修改讲师)
+    /**
+     * 根据id获取回显信息(修改讲师)
+     */
     getInfo(id) {
       teacherAip.getTeacherInfo(id).then((response) => {
         this.teacher = response.data.teacher;
       });
     },
-    // 修改讲师
+
+    /**
+     * 修改讲师,成功后，返回讲师列表 路由跳转
+     */
     updateTeacher() {
       teacherAip.updateTeacher(this.teacher).then((response) => {
-        // 修改成功
         this.$message({
           type: "success",
           message: "修改成功！",
         });
-        // 返回讲师列表 路由跳转
         this.$router.push({ path: "/teacher/table" });
       });
     },

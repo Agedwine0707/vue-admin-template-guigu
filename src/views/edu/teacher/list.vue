@@ -104,45 +104,57 @@
 <script>
 // 引入调用的teacher.js文件
 import teacher from "@/api/edu/teacher";
+
 export default {
   // 核心代码位置
   data() {
     //定义变量和初始值
     return {
       list: null,
-      page: 1, // 当前页
-      limit: 10, // 每页记录数
-      total: 0, // 总记录数
-      teacherQuery: {}, // 查询条件封装
+      // 当前页
+      page: 1,
+      // 每页记录数
+      limit: 10,
+      // 总记录数
+      total: 0,
+      // 查询条件封装
+      teacherQuery: {},
     };
   },
+  /**
+   * 页面渲染之前执行，加载讲师列表
+   */
   created() {
-    // 页面渲染之前执行，一般调用methods定义的方法
     this.getList();
   },
   methods: {
-    // 创建具体的方法，调用teacher.js定义的方法
-
+    /**
+     * 获取讲师列表，调用teacher.js定义的方法
+     */
     getList(page = 1) {
       this.page = page;
       teacher
         .getTeacherListPage(this.page, this.limit, this.teacherQuery)
         .then((response) => {
-          // 请求成功
           this.list = response.data.rows;
           this.total = response.data.total;
         })
         .catch((error) => {
-          // 请求失败
           console.log(error);
         });
     },
-    // 清空查询条件
+
+    /**
+     * 清空查询条件
+     */
     resetData() {
       this.teacherQuery = {};
       this.getList();
     },
-    // 根据id删除讲师
+
+    /**
+     * 根据id删除讲师
+     */
     removeDataById(id) {
       this.$confirm("此操作将永久删除该讲师记录, 是否继续?", "提示", {
         confirmButtonText: "确定",
@@ -150,16 +162,16 @@ export default {
         type: "warning",
       })
         .then(() => {
-          return teacher.deleteTeacherId(id)
+          return teacher.deleteTeacherId(id);
         })
         .then(() => {
           this.getList();
           this.$message({
             type: "success",
             message: "删除成功!",
-          })
-        })
-    }
-  }
-}
+          });
+        });
+    },
+  },
+};
 </script>

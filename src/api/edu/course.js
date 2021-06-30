@@ -47,6 +47,39 @@ export default {
       method:'post',
       data: courseInfo
     })
+  },
+
+  /**
+   * 根据课程id获取最终的课程发布信息
+   * @param {*} id 
+   * @returns 
+   */
+  getCoursePublishInfoById(id){
+    return request({
+      url: `/eduservice/educourse/publish/${id}`,
+      method: 'get'
+    })
+  },
+  
+  /**
+   * 课程最终发布
+   * @param {} id 
+   * @returns 
+   */
+  publishCourse(id) {
+    return request({
+      url: `/eduservice/educourse/publish/${id}`,
+      method: 'put'
+    })
+
+  },
+
+  getPageList(page,limit,searchObj){
+    return request({
+      url: `/eduservice/educourse/${page}/${limit}`,
+      method:'get',
+      params: searchObj
+    })
   }
 
 }

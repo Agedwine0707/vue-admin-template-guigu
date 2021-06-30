@@ -64,6 +64,17 @@ export default {
             method:'post',
             data:teacher
         })
+    },
+
+    /**
+     * 获取所有讲师数据
+     * @returns 
+     */
+    getTeacherList(){
+        return request({
+            url:`/eduservice/teacher/findAll`,
+            method:'get',
+        })
     }
 
 

@@ -18,7 +18,7 @@
 </template>
 
 <script>
-import subject from '@/api/edu/subject'
+import subject from "@/api/edu/subject";
 
 export default {
   data() {
@@ -32,24 +32,35 @@ export default {
       },
     };
   },
+
+  /**
+   * 路由变化监听，变化后重新初始化
+   */
   watch: {
     filterText(val) {
       this.$refs.tree2.filter(val);
     },
   },
-  // 页面渲染完成之前调用
-  created() {
 
-      this.getAllSubject()
+  /**
+   *  页面渲染完成之前调用
+   */
+  created() {
+    this.getAllSubject();
   },
+
   methods: {
-    // 获取所有课程列表数据
+    /**
+     * 获取所有课程列表数据
+     */
     getAllSubject() {
-        subject.getTreeSubjectList()
-            .then(response => {
-                this.data2 = response.data.list 
-            })
+      subject.getTreeSubjectList().then((response) => {
+        this.data2 = response.data.list;
+      });
     },
+    /**
+     * 在搜索时忽略大小写
+     */
     filterNode(value, data) {
       if (!value) return true;
       return data.title.toLowerCase().indexOf(value) !== -1;

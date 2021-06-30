@@ -32,6 +32,7 @@
             :value="subject.id"
           />
         </el-select>
+
         <!-- 二级分类 -->
         <el-select v-model="courseInfo.subjectId" placeholder="二级分类">
           <el-option
@@ -70,6 +71,7 @@
       </el-form-item>
 
       <!-- 课程封面-->
+
       <el-form-item label="课程封面">
         <el-upload
           :show-file-list="false"
@@ -109,23 +111,21 @@ import course from "@/api/edu/course";
 import subject from "@/api/edu/subject";
 import Tinymce from "@/components/Tinymce";
 
-const defaultForm = {
-  title: "",
-  subjectId: "",
-  teacherId: "",
-  lessonNum: 0,
-  description: "",
-  subjectParentId: "",
-  cover: "/static/upload.png",
-  price: 0,
-};
-
 export default {
   // 声明组件
   components: { Tinymce },
   data() {
     return {
-      courseInfo: defaultForm,
+      courseInfo: {
+        title: "",
+        subjectId: "",
+        teacherId: "",
+        lessonNum: 0,
+        description: "",
+        subjectParentId: "",
+        cover: "/static/upload.png",
+        price: 0,
+      },
       // 保存按钮是否禁用
       saveBtnDisabled: false,
       // 讲师列表数据
@@ -139,8 +139,10 @@ export default {
       courseId: "",
     };
   },
-  
-  // 路由变化监听，变化后重新初始化
+
+  /**
+   * 路由变化监听，变化后重新初始化
+   */
   watch: {
     $route(to, from) {
       this.init();
@@ -158,16 +160,22 @@ export default {
     if (this.$route.params && this.$route.params.id) {
       this.courseId = this.$route.params.id;
       this.getCourseInfo();
-    }else{
-      this.courseInfo={}
-      this.courseInfo.cover='/static/upload.png'
-      this.courseInfo.lessonNum=0
-      this.courseInfo.price=0
+    } else {
+      this.courseInfo.title = "";
+      this.courseInfo.subjectId = "";
+      this.courseInfo.teacherId = "";
+      this.courseInfo.lessonNum = 0;
+      this.courseInfo.description = "";
+      this.courseInfo.subjectParentId = "";
+      this.courseInfo.lessonNum = 0;
+      this.courseInfo.price = 0;
     }
   },
 
   methods: {
-    // 根据课程id查询回显信息
+    /**
+     * 根据课程id查询回显信息
+     */
     getCourseInfo() {
       course.getCourseInfo(this.courseId).then((response) => {
         this.courseInfo = response.data.courseInfo;
@@ -190,11 +198,17 @@ export default {
         this.getTeacherList();
       });
     },
-    // 上传封面成功回调
+
+    /**
+     * 上传封面成功回调
+     */
     handleAvatarSuccess(res, file) {
       this.courseInfo.cover = res.data.url;
     },
-    // 上传封面之前执行
+
+    /**
+     * 上传封面之前执行
+     */
     beforeAvatarUpload(file) {
       const isJPG = file.type === "image/jpeg";
       const isLt2M = file.size / 1024 / 1024 < 2;
@@ -208,38 +222,43 @@ export default {
       return isJPG && isLt2M;
     },
 
-    // 获取讲师列表
+    /**
+     * 获取讲师列表
+     */
     getTeacherList() {
       course.getAllTeacherInfo().then((response) => {
         this.teacherList = response.data.items;
       });
     },
-    // 获取所有的一级课程列表
+
+    /**
+     * 获取所有的一级课程列表
+     */
     getSubjectOneList() {
       subject.getTreeSubjectList().then((response) => {
         this.subjectOneList = response.data.list;
       });
     },
 
-    // 点击某个一级分类，触发change,显示对应的二级分类(value就是一级分类的id值)
+    /**
+     * 选中改变一级分类，触发change事件,显示对应的二级分类(value就是一级分类的id值)
+     * step->遍历所有的课程列表数据->取到每个一级分类->如果数据中一级列表id和当前选
+     * 择id一样->从一级列表中把二级目录取出->把二级分类的id值清空(防止数据残留)
+     */
     subjectlevelOneChanged(value) {
-      // 遍历所有的课程列表数据
       for (var i = 0; i < this.subjectOneList.length; i++) {
-        // 取到每个一级分类
         var subjectOne = this.subjectOneList[i];
-        // 如果数据中一级列表id和当前选择id一样
         if (value === subjectOne.id) {
-          // 从一级列表中把二级目录取出
           this.subjectTowList = subjectOne.children;
-          // 把二级分类的id值清空(防止数据残留)
-          this.courseInfo.subjectId = "";
         }
       }
     },
 
+    /**
+     * 根据课程信息中，是否有id执行添加或修改操作
+     */
     saveOrUpdate() {
-      // 判断是添加操作还是修改
-      if(!this.courseInfo.id){
+      if (!this.courseInfo.id) {
         course.addCourseInfo(this.courseInfo).then((response) => {
           this.$message({
             type: "success",
@@ -247,32 +266,41 @@ export default {
           });
           this.$router.push({
             path: "/edu/course/chapter/" + response.data.courseId,
-          })
-        })
-
-      }else{
-        this.updateCourse()
+          });
+        });
+      } else {
+        this.updateCourse();
       }
     },
-    // 修改课程
-    updateCourse(){
-      course.updateCourseInfo()
-        .then(response =>{
-          this.$message({
-            type:'success',
-            message:'修改课程信息成功！'
-          })
-          // 带上courseId进入第二步
-          this.$router.push({path:'/edu/course/chapter/'+this.courseId})
-        })
-    }
-  }
-}
+
+    /**
+     * 修改课程，调用API,把课程id传入第二部(路由)
+     */
+    updateCourse() {
+      course.updateCourseInfo().then((response) => {
+        this.$message({
+          type: "success",
+          message: "修改课程信息成功！",
+        });
+        this.$router.push({ path: "/edu/course/chapter/" + this.courseId });
+      });
+    },
+  },
+};
 </script>
 
 <style scoped>
 /* 富文本编辑器样式 */
 .tinymce-container {
   line-height: 29px;
+}
+
+.avatar-uploader img {
+  background: #d6d6d6;
+  width: 500px;
+  height: 278px;
+  display: block;
+  float: left;
+  border: none;
 }
 </style>
