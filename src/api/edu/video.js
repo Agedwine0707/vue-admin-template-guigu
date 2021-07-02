@@ -49,5 +49,6 @@ export default {
             url: `/eduservice/video/${videoId}`,
             method: 'delete',
         })
-    }
+    },
+
 }

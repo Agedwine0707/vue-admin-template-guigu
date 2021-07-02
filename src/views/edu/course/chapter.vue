@@ -100,7 +100,28 @@
           </el-radio-group>
         </el-form-item>
         <el-form-item label="上传视频">
-          <!-- TODO -->
+          <el-upload
+            :on-success="handleVodUploadSuccess"
+            :on-remove="handleVodRemove"
+            :before-remove="beforeVodRemove"
+            :on-exceed="handleUploadExceed"
+            :file-list="fileList"
+            :action="BASE_API + '/vod/video/upload'"
+            :limit="1"
+            class="upload-demo"
+          >
+            <el-button size="small" type="primary">上传视频</el-button>
+            <el-tooltip placement="right-end">
+              <div slot="content">
+                最大支持1G，<br />
+                支持3GP、ASF、AVI、DAT、DV、FLV、F4V、<br />
+                GIF、M2T、M4V、MJ2、MJPEG、MKV、MOV、MP4、<br />
+                MPE、MPG、MPEG、MTS、OGG、QT、RM、RMVB、<br />
+                SWF、TS、VOB、WMV、WEBM 等视频格式上传
+              </div>
+              <i class="el-icon-question" />
+            </el-tooltip>
+          </el-upload>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -119,6 +140,7 @@
 <script>
 import chapter from "@/api/edu/chapter";
 import video from "@/api/edu/video";
+import vod from "@/api/edu/vod";
 
 export default {
   data() {
@@ -130,7 +152,7 @@ export default {
       // 弹窗是否显示
       dialogChapterFormVisible: false,
       dialogVideoFormVisible: false,
-      //封装弹窗的数据
+      // 封装弹窗的数据
       chapter: {
         title: "",
         sort: 0,
@@ -141,7 +163,12 @@ export default {
         sort: 0,
         free: 0,
         videoSourceId: "",
+        videoOriginalName: "",
       },
+      // 上传文件列表
+      fileList: [],
+      // 接口API地址
+      BASE_API: process.env.BASE_API,
     };
   },
 
@@ -157,11 +184,54 @@ export default {
 
   methods: {
     /**
+     * 视频上传成功回调,给阿里云视频id和视频名称赋值
+     */
+    handleVodUploadSuccess(response, file, fileList) {
+      this.video.videoSourceId = response.data.videoId;
+      this.video.videoOriginalName = file.name;
+      this.$message({
+        type: "success",
+        message: response.message,
+      });
+    },
+
+    /**
+     * 删除上传视频之前执行
+     */
+    beforeVodRemove(file, fileList) {
+      return this.$confirm(`确定移除${file.name}?`);
+    },
+
+    /**
+     * 删除上传视频，置空阿里云视频id,文件名，上传文件列表
+     */
+    handleVodRemove(file, fileList) {
+      vod.removeVideoById(this.video.videoSourceId).then((response) => {
+        this.video.videoSourceId = "";
+        this.video.videoOriginalName = "";
+        this.fileList = [];
+        this.$message({
+          type: "success",
+          message: response.message,
+        });
+      });
+    },
+
+    /**
+     * 当上传视频超过一个时，提示
+     */
+    handleUploadExceed(files, fileList) {
+      this.$message.warning("重新上传视频，需要先删除已上传的视频");
+    },
+
+    /**
      * 编辑小节，打开弹窗调API回显数据
      */
     editVideo(videoId) {
       video.getVideoInfo(videoId).then((response) => {
         this.video = response.data.video;
+        // 回显视频上传列表
+        this.fileList = [{ name: this.video.videoOriginalName }];
       });
       this.dialogVideoFormVisible = true;
     },

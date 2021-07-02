@@ -74,11 +74,25 @@ export default {
 
   },
 
+  /**
+   * 分页获取课程列表
+   * @param {*} page 
+   * @param {*} limit 
+   * @param {*} searchObj 
+   * @returns 
+   */
   getPageList(page,limit,searchObj){
     return request({
       url: `/eduservice/educourse/${page}/${limit}`,
       method:'get',
       params: searchObj
+    })
+  },
+
+  deleteCourseById(id){
+    return request({
+      url: `/eduservice/educourse/${id}`,
+      method: 'delete'
     })
   }
 
