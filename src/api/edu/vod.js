@@ -2,7 +2,7 @@ import request from '@/utils/request'
 
 export default {
     /**
-     * 根据id删除视频
+     * 根据阿里云视频id删除视频
      * @param {*} id 阿里云中存储的视频id
      * @returns 
      */

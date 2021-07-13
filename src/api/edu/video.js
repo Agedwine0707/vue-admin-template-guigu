@@ -41,7 +41,7 @@ export default {
 
     /**
      * 删除小节信息
-     * @param {*} video 
+     * @param {*} 小节id 
      * @returns 
      */
     deleteVideoById(videoId) {
